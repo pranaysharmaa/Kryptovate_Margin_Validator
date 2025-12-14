@@ -93,7 +93,7 @@ cd backend
 pytest -v
 ```
 
-All tests should pass.
+All tests except one should pass. See discussions for more.
 
 ---
 
