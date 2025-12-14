@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-// Asset configuration from backend
 interface Asset {
   symbol: string;
   mark_price: number;
@@ -8,7 +7,6 @@ interface Asset {
   allowed_leverage: number[];
 }
 
-// Response from margin validation endpoint
 interface MarginResponse {
   status: "ok" | "error";
   margin_required?: number;
@@ -18,24 +16,20 @@ interface MarginResponse {
 const API_BASE = "http://localhost:8000";
 
 export default function App() {
-
   const [assets, setAssets] = useState<Asset[]>([]);
   const [asset, setAsset] = useState<Asset | null>(null);
-
 
   const [orderSize, setOrderSize] = useState<string>("");
   const [side, setSide] = useState<"long" | "short">("long");
   const [leverage, setLeverage] = useState<number>(0);
 
-
   const [margin, setMargin] = useState<number>(0);
   const [result, setResult] = useState<MarginResponse | null>(null);
 
- 
   const isInvalidOrderSize =
     orderSize !== "" && Number(orderSize) <= 0;
 
- 
+  // Fetch assets once
   useEffect(() => {
     fetch(`${API_BASE}/config/assets`)
       .then(res => res.json())
@@ -47,9 +41,11 @@ export default function App() {
       });
   }, []);
 
-  
+  // Recalculate preview and clear old validation when inputs change
   useEffect(() => {
-    if (!asset || !orderSize || isInvalidOrderSize) {
+    setResult(null);
+
+    if (!asset || !orderSize || isInvalidOrderSize || leverage <= 0) {
       setMargin(0);
       return;
     }
@@ -63,11 +59,10 @@ export default function App() {
     setMargin(Number(calculated.toFixed(2)));
   }, [asset, orderSize, leverage, isInvalidOrderSize]);
 
-  // Submit order preview to backend with recomputed margin
+  // Submit using freshly computed margin
   const submitOrderPreview = async () => {
-    if (!asset || !orderSize || isInvalidOrderSize) return;
+    if (!asset || !orderSize || isInvalidOrderSize || leverage <= 0) return;
 
-    // Recompute margin here to avoid stale React state
     const calculatedMargin =
       (asset.mark_price *
         Number(orderSize) *
@@ -81,10 +76,10 @@ export default function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         asset: asset.symbol,
-        order_size: orderSize,      // string to preserve precision?
+        order_size: orderSize,
         side,
         leverage,
-        margin_client: marginClient // string, backend parses as Decimal?
+        margin_client: marginClient
       }),
     });
 
@@ -102,7 +97,6 @@ export default function App() {
           Initial margin calculator
         </p>
 
-        {/* Asset selection */}
         <div className="flex gap-2 mb-4">
           {assets.map(a => (
             <button
@@ -144,7 +138,7 @@ export default function App() {
           />
           {isInvalidOrderSize && (
             <p className="mt-1 text-xs text-error">
-              Order size must be greater than zero. This order may not be validated.
+              Order size must be greater than zero.
             </p>
           )}
         </Field>
@@ -185,7 +179,7 @@ export default function App() {
 
         <button
           onClick={submitOrderPreview}
-          disabled={!orderSize || isInvalidOrderSize}
+          disabled={!orderSize || isInvalidOrderSize || leverage <= 0}
           className="w-full bg-primary py-2 rounded-lg font-medium disabled:opacity-50"
         >
           Submit Order Preview
@@ -210,7 +204,6 @@ export default function App() {
   );
 }
 
-// Simple layout - reusable
 function Field({
   label,
   children,
