@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-bg text-gray-100;
+  font-family: Inter, system-ui, -apple-system;
+}
+.input {
+  @apply w-full mt-1 bg-bg border border-border rounded-lg px-3 py-2 text-sm;
+}
