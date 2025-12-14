@@ -18,24 +18,24 @@ interface MarginResponse {
 const API_BASE = "http://localhost:8000";
 
 export default function App() {
-  // Asset-related state
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const [asset, setAsset] = useState<Asset | null>(null);
 
-  // Order input state
+
   const [orderSize, setOrderSize] = useState<string>("");
   const [side, setSide] = useState<"long" | "short">("long");
   const [leverage, setLeverage] = useState<number>(0);
 
-  // Derived preview + backend result
+
   const [margin, setMargin] = useState<number>(0);
   const [result, setResult] = useState<MarginResponse | null>(null);
 
-  // Frontend validation for non-positive order sizes
+ 
   const isInvalidOrderSize =
     orderSize !== "" && Number(orderSize) <= 0;
 
-  // Fetch supported assets once on mount
+ 
   useEffect(() => {
     fetch(`${API_BASE}/config/assets`)
       .then(res => res.json())
@@ -47,7 +47,7 @@ export default function App() {
       });
   }, []);
 
-  // UI-only margin preview (not authoritative)
+  
   useEffect(() => {
     if (!asset || !orderSize || isInvalidOrderSize) {
       setMargin(0);
@@ -81,10 +81,10 @@ export default function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         asset: asset.symbol,
-        order_size: orderSize,      // string to preserve precision
+        order_size: orderSize,      // string to preserve precision?
         side,
         leverage,
-        margin_client: marginClient // string, backend parses as Decimal
+        margin_client: marginClient // string, backend parses as Decimal?
       }),
     });
 
@@ -210,7 +210,7 @@ export default function App() {
   );
 }
 
-// Simple layout wrapper for form fields
+// Simple layout - reusable
 function Field({
   label,
   children,
