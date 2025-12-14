@@ -172,4 +172,8 @@ These assumptions are intentional and documented.
 
 ---
 
+## 13. Discussion - Left open ended currently
 
+- order size and margin client have type float which might lead to a lot of issues internally with the round half up function.
+- appeared consistently in pytest
+- should this be changed to str while or some other solution is possible.
